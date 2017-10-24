@@ -1,0 +1,7 @@
+set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
+add_subdirectory("../lib/googletest" "${CMAKE_CURRENT_BINARY_DIR}/gtest_build")
+include_directories(../lib/googletest/googletest/include)
+include_directories(../src/)
+add_executable(runtest main.cpp)
+target_link_libraries(runtest gtest gtest_main)
