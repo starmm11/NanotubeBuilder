@@ -10,6 +10,13 @@
 #include <map>
 #include <array>
 #include <cmath>
+#include <algorithm>
+#include <fstream>
+#include <chrono>
+
+
+const double PI_180 = 0.01745329251994329576923690768489;
+const double BIG = 10000000000;
 
 namespace NTBuilder {
     // Lattice enum class
@@ -18,66 +25,99 @@ namespace NTBuilder {
     typedef std::vector<std::vector<double> > matrix;
     typedef std::array<int, 3> crystal_dir;
     typedef const std::array<int, 3>& r_crystal_dir;
+    typedef std::array<double, 3> coord;
+    typedef std::vector<std::array<double, 3> > atoms;
 
-    template<class coord_type>
-    typedef std::array<coord_type, 3> coord;
+    int Scalar(r_crystal_dir, r_crystal_dir);
+    bool CheckPairwiseOrthogonality(r_crystal_dir, r_crystal_dir, r_crystal_dir);
+    bool CheckRightHanded(r_crystal_dir, r_crystal_dir, r_crystal_dir);
+    double getLength(r_crystal_dir);
+    matrix Norm3VectorsRows(r_crystal_dir x, r_crystal_dir y, r_crystal_dir normal);
+    matrix Norm3VectorsCols(r_crystal_dir x, r_crystal_dir y, r_crystal_dir normal);
 
-    static lattice_matrices createAtomBasis() {
-        lattice_matrices m;
-        m[LatticeType::FCC] = {{0.0, 0.0, 0.0},
-                               {0.5, 0.5, 0.0},
-                               {0.5, 0.0, 0.5},
-                               {0.0, 0.5, 0.5}};
-        m[LatticeType::BCC] = {{0.0, 0.0, 0.0},
-                               {0.5, 0.5, 0.5}};
-        m[LatticeType::HCP] = {{0.0, 0.0, 0.0},
-                               {0.5, 0.5, 0.0},
-                               {0.5, 5.0/6.0, 0.5},
-                               {0.0, 1.0/3.0, 0.5}};
-        return m;
-    }
+    void MultiplyMatrixVector3x3(coord&, const matrix&, const coord&);
+    void MultiplyVectorNumber(coord& y, double num);
 
-    static lattice_matrices createLatticeVectors() {
-        lattice_matrices m;
-        m[LatticeType::FCC] = {{0.1, 0.0, 0.0},
-                               {0.0, 0.1, 0.0},
-                               {0.0, 0.0, 0.1}};
-        m[LatticeType::BCC] = m[LatticeType::FCC];
-        m[LatticeType::HCP] = {{0.1, 0.0, 0.0},
-                               {0.0, sqrt(3.0), 0.0},
-                               {0.0, 0.0, sqrt(8.0/3.0)}};
-        return m;
-    }
+    void OutputLammpsFormat(std::ofstream& out, const atoms& body_atoms);
 
-    static lattice_matrices atom_basis = createAtomBasis();
-    static lattice_matrices lattice_vectors = createLatticeVectors();
+    lattice_matrices CreateAtomBasis();
+    lattice_matrices CreateLatticeVectors();
+    lattice_matrices CreateInvertLatticeVectors();
 
-    int Scalar(r_crystal_dir, r_crystal_dir) const;
-    bool CheckPairwiseOrthogonality(r_crystal_dir, r_crystal_dir, r_crystal_dir) const;
-    double getLength(r_crystal_dir) const;
-    matrix Norm3VectorsMatrix(r_crystal_dir normal, r_crystal_dir x, r_crystal_dir y) const;
+    const lattice_matrices atom_basis =
+            {{LatticeType::FCC, {{0.0, 0.0, 0.0},
+                                 {0.5, 0.5, 0.0},
+                                 {0.5, 0.0, 0.5},
+                                 {0.0, 0.5, 0.5}}
+             },
+             {LatticeType::BCC, {{0.0, 0.0, 0.0},
+                                 {0.5, 0.5, 0.5}}
+             },
+             {LatticeType::HCP, {{0.0, 0.0, 0.0},
+                                 {0.5, 0.5, 0.0},
+                                 {0.5, 5.0 / 6.0, 0.5},
+                                 {0.0, 1.0 / 3.0, 0.5}}
+             }};
 
-    // convert atom coordinates in lattice to the box
-    // rotating according to the x, y, normal directions
-    template<class coord_type, LatticeType lattice_type>
-    coord LatticeToBox(const coord& atom, r_crystal_dir x, r_crystal_dir y, r_crystal_dir normal) const;
+    const lattice_matrices lattice_vectors =
+            {{LatticeType::FCC, {{1.0, 0.0, 0.0},
+                                 {0.0, 1.0, 0.0},
+                                 {0.0, 0.0, 1.0}}
+             },
+             {LatticeType::BCC, {{1.0, 0.0, 0.0},
+                                 {0.0, 1.0, 0.0},
+                                 {0.0, 0.0, 1.0}}
+             },
+             {LatticeType::HCP, {{1.0, 0.0, 0.0},
+                                 {0.0, sqrt(3.0), 0.0},
+                                 {0.0, 0.0, sqrt(8.0/3.0)}}
+             }};
 
-    // template parameters: lattice_type, lattice parameters a and c
-    // for FCC and BCC templates will be <FCC /*BCC*/, a, a>
-    template<class coord_type = double, LatticeType lattice_type, coord_type a, coord_type c>
+    const lattice_matrices inv_lattice_vectors =
+            {{LatticeType::FCC, {{1.0, 0.0, 0.0},
+                                 {0.0, 1.0, 0.0},
+                                 {0.0, 0.0, 1.0}}
+             },
+             {LatticeType::BCC, {{1.0, 0.0, 0.0},
+                                 {0.0, 1.0, 0.0},
+                                 {0.0, 0.0, 1.0}}
+             },
+             {LatticeType::HCP, {{1.0, 0.0, 0.0},
+                                 {0.0, sqrt(3.0/8.0), 0.0},
+                                 {0.0, 0.0, sqrt(1.0/3.0)}}
+             }};
+
+    // template parameters: lattice_type, lattice parameter a
     class NanotubeBuilder {
     public:
-        // typedefs
-        typedef std::array<coord_type, 3> coord;
-        typedef std::vector<std::array<coord_type, 3> > atoms;
+        NanotubeBuilder(LatticeType type, r_crystal_dir x, r_crystal_dir y, r_crystal_dir normal, double al) :
+                type(type), x(x), y(y), normal(normal), a(al) {
 
-        // function builds nanotube by number of layers in it
-        // input: plane normal vector, x, y, chiral angle, nanotube length (Angstrom),
-        // inner radius (Angstrom), number of layers in nanotube (Angstrom)
-        // ouput: vector of atoms coordinates
-        atoms BuildNanotube(r_crystal_dir x, r_crystal_dir y, r_crystal_dir normal,
-                            double chiral_angle, double length, double r_in, int n_layers) const;
+            if (!CheckPairwiseOrthogonality(x, y, normal)) {
+                throw std::logic_error("Chosen directions are not pairwise orthogonal\n");
+            }
+            if (!CheckRightHanded(x, y, normal)) {
+                throw std::logic_error("Chosen directions are not right\n");
+            }
+            rotate_row = Norm3VectorsRows(x, y, normal);
+            rotate_col = Norm3VectorsCols(x, y, normal);
+        }
 
+        // convert atom coordinates in lattice to the box
+        // rotating according to the x, y, normal directions
+        coord LatticeToBox(const coord& atom);
+
+        coord BoxToLattice(const coord& atom);
+
+        coord BLbox(const coord& atom,
+                    double& xmin, double& ymin, double& zmin,
+                    double& xmax, double& ymax, double& zmax);
+
+        coord LBbox(const coord& atom,
+                    double& xmin, double& ymin, double& zmin,
+                    double& xmax, double& ymax, double& zmax);
+
+        coord LatticeSpacing();
 
         // create layers of the parallelogramm
         // with an angle equal to chiral_angle
@@ -88,24 +128,35 @@ namespace NTBuilder {
         //   /   /
         //  /   /
         // - - -  chiral angle
-        // starting from (0, 0, 0)
-        atoms BuildParallellogramm(r_crystal_dir x, r_crystal_dir y, r_crystal_dir normal,
-                                   double chiral_angle,
-                                   double length_x, double length_y, double length_z) const;
+        // (0, 0, 0) (ly * cos(a), ly * sin(a)) (ly * cos(a) + lx, length_y * sin(a))
+        atoms BuildSquarePlane(double chiral_angle,
+                               double length_x, double length_y, double length_z);
+
 
         // function builds nanotube by outer radius, it uses previous function
         // input: plane normal vector, x, y, chiral angle, nanotube length (Angstrom),
         // inner radius (Angstrom), outer radius (Angstrom)
         // ouput: vector of atoms coordinates
-        atoms BuildNanotube(r_crystal_dir x, r_crystal_dir y, r_crystal_dir normal,
-                            double chiral_angle, double length, double r_in, double r_out) const;
+        atoms BuildNanotube(double chiral_angle, double length, double r_in, double r_out) const;
 
+        // function builds nanotube by number of layers in it
+        // input: plane normal vector, x, y, chiral angle, nanotube length (Angstrom),
+        // inner radius (Angstrom), number of layers in nanotube (Angstrom)
+        // ouput: vector of atoms coordinates
+        atoms BuildNanotube(double chiral_angle, double length, double r_in, int n_layers) const;
 
     private:
         // create atom in the box according to its coordinate in the unit cell
+        LatticeType type;
+        crystal_dir x;
+        crystal_dir y;
+        crystal_dir normal;
+        double a;
 
+        matrix rotate_row;
+
+        matrix rotate_col;
     };
-
 
 }
 
