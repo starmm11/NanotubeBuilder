@@ -1,0 +1,16 @@
+//
+// Created by Ilya Bryukhanov on 10.11.2017.
+//
+
+#ifndef NANOTUBEBUILDER_PMATH_H
+#define NANOTUBEBUILDER_PMATH_H
+
+namespace NTBuilder {
+    const double PI_180 = 0.01745329251994329576923690768489;
+    const double PI_180_i = 57.295779513082320876798154814105;
+    const double PI = 3.1415926535897932384626433832795;
+    const double BIG = 10000000000;
+}
+
+
+#endif //NANOTUBEBUILDER_PMATH_H

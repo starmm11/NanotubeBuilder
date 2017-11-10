@@ -3,7 +3,9 @@ project(NanotubeBuilder)
 
 set(CMAKE_CXX_STANDARD 11)
 
-set(SOURCE_FILES src/main.cpp src/NanotubeBuilder.h src/NanotubeBuilder.cpp)
+set(SOURCE_FILES src/main.cpp
+        src/NanotubeBuilder.h src/NanotubeBuilder.cpp
+        src/LatticeOperations.h src/LatticeOperations.cpp src/PMath.h)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/output)
 add_subdirectory(tests)
 include_directories(src)
