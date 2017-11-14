@@ -49,6 +49,23 @@ namespace NTBuilder {
         return sqrt(static_cast<double>(x[0] * x[0] + x[1] * x[1] + x[2] * x[2]));
     }
 
+    matrix CreateZeroMatrix3x3() {
+        matrix a(3);
+        for (int i = 0; i < 3; ++i) {
+            a[i].resize(3);
+        }
+        return a;
+    }
+
+    matrix TransposeMatrix3x3(const matrix& m) {
+        matrix a = CreateZeroMatrix3x3();
+        for (int i = 0; i < 3; ++i) {
+            for (int j = 0; j < 3; ++j) {
+                a[i][j] = m[j][i];
+            }
+        }
+        return a;
+    }
     matrix Norm3VectorsRows(r_crystal_dir x, r_crystal_dir y, r_crystal_dir normal) {
         matrix m(3);
         for (int i = 0; i < 3; ++i) {
@@ -84,12 +101,29 @@ namespace NTBuilder {
     }
 
     void MultiplyMatrixVector3x3(coord &y, const matrix &m, const coord &x) {
-        y[0] = 0;
-        y[1] = 0;
-        y[2] = 0;
+        for (int i = 0; i < 3; ++i) {
+            y[i] = 0;
+        }
+
         for (int i = 0; i < 3; ++i) {
             for (int j = 0; j < 3; ++j) {
                 y[i] += m[i][j] * x[j];
+            }
+        }
+    }
+
+    void MultiplyMatrixMatrix3x3(matrix& res, const matrix& m1, const matrix& m2) {
+        for (int i = 0; i < 3; ++i) {
+            for (int j = 0; j < 3; ++j) {
+                res[i][j] = 0;
+            }
+        }
+
+        for (int i = 0; i < 3; ++i) {
+            for (int j = 0; j < 3; ++j) {
+                for (int k = 0; k < 3; ++k) {
+                    res[i][j] += m1[i][k] * m2[k][j];
+                }
             }
         }
     }
@@ -98,5 +132,11 @@ namespace NTBuilder {
         for (int i = 0; i < 3; ++i) {
             y[i] *= num;
         }
+    }
+
+    void PrintMatrix3x3(const matrix& a, std::ostream& out) {
+        out << a[0][0] << ' ' << a[0][1] << ' ' << a[0][2] << '\n';
+        out << a[1][0] << ' ' << a[1][1] << ' ' << a[1][2] << '\n';
+        out << a[2][0] << ' ' << a[2][1] << ' ' << a[2][2] << '\n';
     }
 }

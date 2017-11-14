@@ -22,7 +22,7 @@ namespace NTBuilder {
     typedef std::map<LatticeType, std::vector<std::vector<double> > > lattice_matrices;
     typedef std::vector<std::vector<double> > matrix;
     typedef std::array<double, 3> crystal_dir;
-    typedef const std::array<double, 3> &r_crystal_dir;
+    typedef const std::array<double, 3>& r_crystal_dir;
     typedef std::array<double, 3> coord;
     typedef std::vector<std::array<double, 3> > atoms;
 
@@ -40,21 +40,24 @@ namespace NTBuilder {
 
     double getLength(r_crystal_dir);
 
+    matrix CreateZeroMatrix3x3();
+
+    matrix TransposeMatrix3x3(const matrix& m);
+
     matrix Norm3VectorsRows(r_crystal_dir x, r_crystal_dir y, r_crystal_dir normal);
 
     matrix Norm3VectorsCols(r_crystal_dir x, r_crystal_dir y, r_crystal_dir normal);
 
+
     void MultiplyMatrixVector3x3(coord &, const matrix &, const coord &);
+
+    void MultiplyMatrixMatrix3x3(matrix &, const matrix &, const matrix &);
 
     void MultiplyVectorNumber(coord &y, double num);
 
+    void PrintMatrix3x3(const matrix& a, std::ostream& out);
+
     void OutputLammpsFormat(std::ofstream &out, const atoms &body_atoms);
-
-    lattice_matrices CreateAtomBasis();
-
-    lattice_matrices CreateLatticeVectors();
-
-    lattice_matrices CreateInvertLatticeVectors();
 
     const lattice_matrices atom_basis =
             {{LatticeType::FCC, {{0.0, 0.0, 0.0},
