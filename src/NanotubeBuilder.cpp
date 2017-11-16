@@ -259,22 +259,6 @@ namespace NTBuilder {
     }
 
 
-    atoms NanotubeBuilder::BuildNanotube(double length, double r_in, int n_layers) {
-        // first create a plane
-        std::vector<coord> plane = BuildBox(length, 2 * PI * r_in, 2.0);
-
-        // then we need to fold a nanotube
-        for (int i = 0; i < plane.size(); ++i) {
-            double y = plane[i][1];
-            double a_rad = y / (r_in+0.5);
-            double y_new = -r_in*sin(a_rad);
-            double z_new = r_in*(1.0-cos(a_rad));
-            plane[i][1] = y_new;
-            plane[i][2] = z_new;
-        }
-        return plane;
-    }
-
     coord NanotubeBuilder::BLbox(
             const coord &atom,
             double &xmin, double &ymin, double &zmin,

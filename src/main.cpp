@@ -6,10 +6,9 @@ using namespace NTBuilder;
 
 int main() {
     try {
-
-        NanotubeBuilder builder(LatticeType::FCC, {1, 1, -2}, {-1, 1, 0}, {1, 1, 1}, 25.0, 4.05);
+        NanotubeBuilder builder(LatticeType::FCC, {1, 1, -2}, {-1, 1, 0}, {1, 1, 1}, 45.0, 4.05);
         atoms tube_atoms = builder.BuildNanotube(150.0, 20.0, 45.0);
-        atoms def_tube_atoms = builder.BuildDeformNanotube(300.0, 40.0, 70.0);
+        atoms def_tube_atoms = builder.BuildDeformNanotube(200.0, 30.0, 90.0);
         atoms pyr_atoms = builder.BuildPyramid(150.0, 2*PI*20.0, 2*PI*45.0, 25.0);
         atoms def_pyr_atoms = builder.BuildDeformPyramid(150.0, 2*PI*20.0, 2*PI*45.0, 25.0);
 
