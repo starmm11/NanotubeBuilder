@@ -112,7 +112,7 @@ namespace NTBuilder {
         for (int k = zlo; k <= zhi; k++) {
             for (int j = ylo; j <= yhi; j++) {
                 for (int i = xlo; i <= xhi; i++) {
-                    for (int m = 0; m < atom_basis.at(type_).size(); m++) {
+                    for (unsigned m = 0; m < atom_basis.at(type_).size(); m++) {
                         atom_lattice[0] = i + atom_basis.at(type_)[m][0];
                         atom_lattice[1] = j + atom_basis.at(type_)[m][1];
                         atom_lattice[2] = k + atom_basis.at(type_)[m][2];
@@ -168,7 +168,7 @@ namespace NTBuilder {
         for (int k = klo; k <= khi; k++) {
             for (int j = jlo; j <= jhi; j++) {
                 for (int i = ilo; i <= ihi; i++) {
-                    for (int m = 0; m < atom_basis.at(type_).size(); m++) {
+                    for (unsigned m = 0; m < atom_basis.at(type_).size(); m++) {
                         atom_lattice[0] = i + atom_basis.at(type_)[m][0];
                         atom_lattice[1] = j + atom_basis.at(type_)[m][1];
                         atom_lattice[2] = k + atom_basis.at(type_)[m][2];
@@ -210,7 +210,7 @@ namespace NTBuilder {
     {
         double length_y_mid = 0.5*(length_y_in + length_y_out);
         atoms pyr_atoms = BuildBox(length_x, length_y_mid, length_z);
-        for (int i = 0; i < pyr_atoms.size(); ++i) {
+        for (unsigned i = 0; i < pyr_atoms.size(); ++i) {
             double z = pyr_atoms[i][2];
             double y_scale = (length_y_in-length_y_out)* z / length_z + length_y_out;
             pyr_atoms[i][1] *= y_scale/length_y_mid;
@@ -224,7 +224,7 @@ namespace NTBuilder {
         std::vector<coord> nanotube = BuildDeformPyramid(length, 2*PI*r_in, 2*PI*r_out, r_out-r_in);
 
         // fold a nanotube
-        for (int i = 0; i < nanotube.size(); ++i) {
+        for (unsigned i = 0; i < nanotube.size(); ++i) {
             double z = nanotube[i][2];
             double r_cur = r_out - z;
             double y = nanotube[i][1];
@@ -242,7 +242,7 @@ namespace NTBuilder {
         std::vector<coord> nanotube = BuildPyramid(length, 2*PI*r_in, 2*PI*r_out, r_out-r_in);
 
         // fold a nanotube
-        for (int i = 0; i < nanotube.size(); ++i) {
+        for (unsigned i = 0; i < nanotube.size(); ++i) {
             double z = nanotube[i][2];
             // toDO: for each z layer find maximum and minimum y position
             // toDO: and fold nanotube relating to them, not to the averaging length!!
@@ -271,6 +271,7 @@ namespace NTBuilder {
         ymax = std::max(atom_new[1], ymax);
         zmin = std::min(atom_new[2], zmin);
         zmax = std::max(atom_new[2], zmax);
+        return atom_new;
     };
 
 
@@ -286,6 +287,7 @@ namespace NTBuilder {
         ymax = std::max(atom_new[1], ymax);
         zmin = std::min(atom_new[2], zmin);
         zmax = std::max(atom_new[2], zmax);
+        return atom_new;
     };
 };
 

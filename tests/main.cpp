@@ -1,14 +1,15 @@
 #include <iostream>
-#include "NanotubeBuilder.h"
-
+#include "LatticeOperations.h"
 #include <gtest/gtest.h>
+
 using namespace std;
 
 TEST(Basic, Dirs) {
-    NTBuilder::crystal_dir a = {1,1,0};
-    NTBuilder::crystal_dir b = {1,1,0};
-    NTBuilder::crystal_dir c = NTBuilder::operator+(a, b);
-    EXPECT_EQ(c[0], 2);
+    using namespace NTBuilder;
+    crystal_dir a = {1, 1, 0};
+    crystal_dir b = {2, 1, 0};
+    crystal_dir c = a+b;
+    EXPECT_EQ(c[0], 3);
     EXPECT_EQ(c[1], 2);
     EXPECT_EQ(c[2], 0);
 }
