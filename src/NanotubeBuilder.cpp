@@ -49,8 +49,11 @@ namespace NTBuilder {
             boundary[0][i] -= gap;
             boundary[1][i] += gap;
         }
-        out << "LAMMPS data file written by Nanotube Builder at " <<
-              system_clock::to_time_t(system_clock::now()) << '\n';
+        // Declaring argument for time()
+        auto end = std::chrono::system_clock::now();
+        std::time_t end_time = std::chrono::system_clock::to_time_t(end);
+
+        out << "LAMMPS data file written by Nanotube Builder at " << std::ctime(&end_time) << '\n';
         out << body_atoms.size() << " atoms" << '\n';
         out << " 1 atom types" << '\n';
         out << " " << boundary[0][0] << ' ' << boundary[1][0] << " xlo xhi " << '\n';

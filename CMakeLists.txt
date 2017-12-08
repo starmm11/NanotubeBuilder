@@ -3,13 +3,12 @@ project(NanotubeBuilder)
 
 #set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -Wall")
-
-set(SOURCE_FILES src/main.cpp
-        src/NanotubeBuilder.h src/NanotubeBuilder.cpp
-        src/LatticeOperations.h src/LatticeOperations.cpp src/PMath.h)
+include_directories(src)
+file(GLOB SOURCE_FILES "src/*.cpp")
+file(GLOB HEADERS "src/*.h" )
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/output)
 
 add_subdirectory(tests)
 
-add_executable(NanotubeBuilder ${SOURCE_FILES})
+add_executable(NanotubeBuilder ${SOURCE_FILES} ${HEADERS})
