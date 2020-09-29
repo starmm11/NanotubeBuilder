@@ -9,10 +9,10 @@
 #include <iostream>
 #include <sstream>
 #include <string>
-#include "NanotubeBuilder.h"
+#include "NanoBuilder.h"
 
 namespace Parser {
-    void InputParser(int argc, char **argv);
+    //void InputParser(int argc, char **argv);
 
     bool IsEmpty(std::ifstream &pFile);
 

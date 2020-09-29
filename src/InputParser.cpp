@@ -19,7 +19,7 @@ namespace Parser {
         return elems;
     }
 
-    void InputParser(int argc, char **argv) {
+    /*void InputParser(int argc, char **argv) {
         if (argc < 2) {
             throw std::logic_error("Too few arguments\n");
         }
@@ -69,23 +69,24 @@ namespace Parser {
         z[2] = stof(data[9]);
         angle = stof(data[10]);
         a = stof(data[11]);
-        NTBuilder::NanotubeBuilder builder(type, {x[0], x[1], x[2]}, {y[0], y[1], y[2]}, {z[0], z[1], z[2]}, angle, a);
+        NTBuilder::NanoBuilder builder(type, {x[0], x[1], x[2]}, {y[0], y[1], y[2]}, {z[0], z[1], z[2]}, angle, a);
         // get second line
         // parameters of what to build
         getline(input, line);
         data = Split(line, ' ');
         double length, r_in, r_out;
         NTBuilder::atoms tube_atoms;
-        if (data[0] == "deform_nanotube") {
-            length = stof(data[1]);
-            r_in = stof(data[2]);
-            r_out = stof(data[3]);
+        length = stof(data[1]);
+        r_in = stof(data[2]);
+        r_out = stof(data[3]);
+        if (data[0] == "deform") {
             tube_atoms = builder.BuildDeformNanotube(length, r_in, r_out);
-        } else if (data[0] == "lattice_nanotube") {
-            length = stof(data[1]);
-            r_in = stof(data[2]);
-            r_out = stof(data[3]);
+        } else if (data[0] == "lattice") {
             tube_atoms = builder.BuildNanotube(length, r_in, r_out);
+        } else if (data[0] == "defect_free") {
+            tube_atoms = builder.BuildDefectFreeNanotube(length, r_in, r_out);
+        } else if (data[0] == "xperiodic") {
+            tube_atoms = builder.BuildPeriodicNanotube(length, r_in, r_out);
         } else {
             throw std::logic_error("Incorrect argument for the nanotube construction\n");
         }
@@ -95,6 +96,11 @@ namespace Parser {
         getline(input, line);
         std::string output_filename = line;
         std::ofstream out(output_filename);
-        NTBuilder::OutputLammpsFormat(out, tube_atoms);
+        if (data[0] == "xperiodic") {
+            NTBuilder::OutputLammpsFormat(out, tube_atoms, length);
+        } else {
+            NTBuilder::OutputLammpsFormat(out, tube_atoms);
+        }
     }
+     */
 }

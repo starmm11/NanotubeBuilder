@@ -138,5 +138,94 @@ namespace NTBuilder {
         out << a[0][0] << ' ' << a[0][1] << ' ' << a[0][2] << '\n';
         out << a[1][0] << ' ' << a[1][1] << ' ' << a[1][2] << '\n';
         out << a[2][0] << ' ' << a[2][1] << ' ' << a[2][2] << '\n';
+        out << '\n';
     }
+
+    coord LatticeToBoxNoRotation(const coord& atom, LatticeType type, double lattice_a,
+                                 const matrix& unit_rows) {
+        coord atom_new;
+        coord tmp;
+        MultiplyMatrixVector3x3(tmp, lattice_vectors.at(type), atom);
+        MultiplyVectorNumber(tmp, lattice_a);
+        MultiplyMatrixVector3x3(atom_new, unit_rows, tmp);
+        return atom_new;
+    }
+
+
+    coord BoxToLatticeNoRotation(const coord& atom, LatticeType type, double lattice_a,
+                                 const matrix& unit_cols) {
+        coord atom_new;
+        coord tmp;
+        MultiplyMatrixVector3x3(tmp, inv_lattice_vectors.at(type), atom);
+        MultiplyVectorNumber(tmp, 1.0 / lattice_a);
+        MultiplyMatrixVector3x3(atom_new, unit_cols, tmp);
+        return atom_new;
+    }
+
+
+    coord LBboxNoRotation(
+            const coord& atom, const matrix& unit_rows,
+            LatticeType type, double lattice_a,
+            double& xmin, double& ymin, double& zmin,
+            double& xmax, double& ymax, double& zmax) {
+
+        coord atom_new = LatticeToBoxNoRotation(atom, type, lattice_a, unit_rows);
+        xmin = std::min(atom_new[0], xmin);
+        xmax = std::max(atom_new[0], xmax);
+        ymin = std::min(atom_new[1], ymin);
+        ymax = std::max(atom_new[1], ymax);
+        zmin = std::min(atom_new[2], zmin);
+        zmax = std::max(atom_new[2], zmax);
+        return atom_new;
+    };
+
+    coord BLboxNoRotation(
+            const coord& atom, const matrix& unit_cols,
+            LatticeType type, double lattice_a,
+            double& xmin, double& ymin, double& zmin,
+            double& xmax, double& ymax, double& zmax) {
+
+        coord atom_new = BoxToLatticeNoRotation(atom, type, lattice_a, unit_cols);
+        xmin = std::min(atom_new[0], xmin);
+        xmax = std::max(atom_new[0], xmax);
+        ymin = std::min(atom_new[1], ymin);
+        ymax = std::max(atom_new[1], ymax);
+        zmin = std::min(atom_new[2], zmin);
+        zmax = std::max(atom_new[2], zmax);
+        return atom_new;
+    };
+
+    coord LatticeSpacing(LatticeType type, double lattice_a, r_crystal_dir x, r_crystal_dir y, r_crystal_dir z) {
+        double xmin, ymin, zmin;
+        double xmax, ymax, zmax;
+        xmin = ymin = zmin = BIG;
+        xmax = ymax = zmax = -BIG;
+        matrix unit_rows = Norm3VectorsRows(x, y, z);
+        matrix unit_cols = Norm3VectorsCols(x, y, z);
+
+        LBboxNoRotation({1.0, 0.0, 0.0}, unit_rows, type, lattice_a, xmin, ymin, zmin, xmax, ymax, zmax);
+        LBboxNoRotation({0.0, 1.0, 0.0}, unit_rows, type, lattice_a, xmin, ymin, zmin, xmax, ymax, zmax);
+        LBboxNoRotation({1.0, 1.0, 0.0}, unit_rows, type, lattice_a, xmin, ymin, zmin, xmax, ymax, zmax);
+        LBboxNoRotation({0.0, 0.0, 1.0}, unit_rows, type, lattice_a, xmin, ymin, zmin, xmax, ymax, zmax);
+        LBboxNoRotation({1.0, 0.0, 1.0}, unit_rows, type, lattice_a, xmin, ymin, zmin, xmax, ymax, zmax);
+        LBboxNoRotation({0.0, 1.0, 1.0}, unit_rows, type, lattice_a, xmin, ymin, zmin, xmax, ymax, zmax);
+        LBboxNoRotation({1.0, 1.0, 1.0}, unit_rows, type, lattice_a, xmin, ymin, zmin, xmax, ymax, zmax);
+
+        coord lattice;
+        lattice[0] = xmax - xmin;
+        lattice[1] = ymax - ymin;
+        lattice[2] = zmax - zmin;
+        return lattice;
+    }
+
+    bool checkSpecialOrientation(r_crystal_dir x) {
+        return (fabs(x[0]) == 1 && fabs(x[1]) == 1 && fabs(x[2]) == 2) ||
+               (fabs(x[0]) == 1 && fabs(x[1]) == 2 && fabs(x[2]) == 1) ||
+               (fabs(x[0]) == 2 && fabs(x[1]) == 1 && fabs(x[2]) == 1) ||
+               (fabs(x[0]) == 1 && fabs(x[1]) == 1 && fabs(x[2]) == 0) ||
+               (fabs(x[0]) == 1 && fabs(x[1]) == 0 && fabs(x[2]) == 1) ||
+               (fabs(x[0]) == 0 && fabs(x[1]) == 1 && fabs(x[2]) == 1);
+
+    }
+
 }
